@@ -1,10 +1,21 @@
 #include "Player.h"
 
 
-Player::Player(string name, Team *team, int jersey, int x, int y): name(name), team(team), jersey(jersey), x(x), y(y)
+
+vector<vector<Jersey>> pitch;
+
+void addPlayers(vector<Player> &usteam, vector<Player> &enteam){
+    for(int i = 0;i< usteam.size(); i++){
+        pitch[usteam[i].x][usteam[i].y] = usteam[i].team->jersey; 
+    }
+}
+
+Player::Player(string name, Team *team, int x, int y): name(name), team(team), x(x), y(y)
 {
 }
 Player::~Player(){}
+
+
 
 void freeball(){}
 void pushaway(Player &us, Player &enemy){
@@ -52,7 +63,10 @@ void Player::dribble(Player &us, Player &enemy){
         }
     }
 }
+void interception(vector<Player> &enplayers){
+    bfs();
 
+}
 
 void drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers) {
     const int gridSize = 10;
@@ -97,6 +111,7 @@ void drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers
             for (auto &target : players) {
                 if (target.x == cursorX && target.y == cursorY) {
                     cout << passer.name << " passes the ball to " << target.name << "!\n";
+                    interception(enplayers);
                     passer.hasball = false;
                     target.hasball = true;
                     ball.x = target.x;

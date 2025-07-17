@@ -6,6 +6,7 @@
 #include <cstdlib> // for rand()
 #include <ctime>   // for time()
 #include "Team.h"
+
 #include <conio.h> // for getch() on Windows
 #include<unistd.h>
 
@@ -18,6 +19,8 @@
 
 #define MAX_VALUE 255
 using namespace std;
+
+
 
 class Player
 {
@@ -41,10 +44,10 @@ public:
     bool hasball = false;
     int stamina = 100; // Starting stamina
 
-    int jersey;
+    
     Team *team;
-
-    Player(string name, Team *team, int jersey, int x, int y);
+    
+    Player(string name, Team *team, int x, int y);
     ~Player();
     void pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
     void dribble(Player &us, Player &enemy);
@@ -56,6 +59,8 @@ class Ball{
 public:
     int x, y;
 };
+
+
 
 extern Ball ball;
 #endif 
