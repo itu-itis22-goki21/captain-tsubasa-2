@@ -64,7 +64,7 @@ void Player::dribble(Player &us, Player &enemy){
     }
 }
 void interception(vector<Player> &enplayers){
-    bfs();
+    //bfs();
 
 }
 
@@ -80,14 +80,14 @@ void drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers
         for (int y = passer.y - gridSize / 2; y <= passer.y + gridSize / 2; y++) {
             for (int x = passer.x - gridSize / 2; x <= passer.x + gridSize / 2; x++) {
                 if(x == cursorX && y == cursorY && x == players[1].x && y == players[1].y){
-                    printf("[%d]", players[1].jersey);
+                    printf("[%d]", players[1].team->jersey.number);
                 }
                 else if (x == cursorX && y == cursorY)
                     cout << "[ ]";
                 else if (x == passer.x && y == passer.y)
                     cout << " P "; 
                 else if(x == players[1].x && y == players[1].y){
-                    printf(" %d ", players[1].jersey);
+                    printf(" %d ", players[1].team->jersey.number);
                 }
                 else
                     cout << "   ";
