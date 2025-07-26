@@ -29,7 +29,7 @@ public:
     string name;
     int dribPower = 0;
     int shoot = 0;
-    int passPower = 0;
+    int passPower = 10;
     int oneTwo = 0;
 
     // Defensive values
@@ -58,6 +58,7 @@ public:
 class Ball{
 public:
     int x, y;
+    int velocity;
 };
 
 
