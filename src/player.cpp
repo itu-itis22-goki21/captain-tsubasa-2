@@ -8,7 +8,7 @@ Player::~Player(){}
 
 Player ***pitch = new Player**[10];
 
-
+Player *GlobaloneTwo = new Player;
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam){
     for (int i = 0; i < 10; ++i) {
@@ -38,6 +38,25 @@ int magnitude(int x1, int y1, int x2, int y2){
     x2 -=x1;
     y2 -=y1;
     return (x2+y2)/2;
+}
+
+Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers){
+    cout << "whohasball entered"<< endl;
+    for(int i = 0; i < usplayers.size(); i++){
+        if(usplayers[i].hasball){
+            cout << usplayers[i].name <<" has ball at " << usplayers[i].x << " " <<  usplayers[i].y  << endl;
+            sleep(1);
+            return usplayers[i];
+        }
+    }
+    for(int i = 0; i < enplayers.size(); i++){
+        if(enplayers[i].hasball){
+            cout << enplayers[i].name <<" has ball at " << enplayers[i].x << " " <<  enplayers[i].y  << endl;
+            sleep(1);
+            return enplayers[i];
+        }
+    }
+    return *GlobaloneTwo;// there should be an exepction and exit here
 }
 
 void freeball() {
@@ -71,6 +90,7 @@ void pushaway(Player &enemy){
     ball.y = centerY + offsetY;
     
     cout << "ball is loose" << endl;
+    sleep(1);
 
     freeball();
     
@@ -143,9 +163,11 @@ vector<Player> lineDrawing(vector<Player> &enplayers, Player &passer, Player &ta
 
 bool passcut(Player &interceptor, Player &passer){
     cout << interceptor.name << " has jumped" << endl;
+    sleep(1);
     
     if(passer.passPower > interceptor.passcut){
         cout << interceptor.name << " could not cut" << endl;
+        sleep(1);
         return 0;
         
     }else if(passer.passPower == interceptor.passcut){
@@ -157,6 +179,7 @@ bool passcut(Player &interceptor, Player &passer){
     }
     else{
         cout<< interceptor.name << " has taken out the ball";
+        sleep(1);
         ball.x = interceptor.x;
         ball.y = interceptor.y;
         interceptor.hasball = 1;
@@ -170,7 +193,7 @@ bool interception(vector<Player> &enplayers, Player &passer, Player &target){
     interPlayers = lineDrawing(enplayers, passer, target);//intercepting players in this vector
     for(int i = 0; i< interPlayers.size();i++){
         if(passcut(interPlayers[i], passer)){
-            
+            //pass cutted
             return 0;
         }else{
             continue;
@@ -179,85 +202,123 @@ bool interception(vector<Player> &enplayers, Player &passer, Player &target){
 
 }
 
-void drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers) {
-    const int gridSize = 10;
+Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers, bool isOneTwo) {
+    const int gridSize = 15;
     int cursorX = passer.x;
     int cursorY = passer.y;
-
-    while (true) {
-        system("cls");
-
-        // Draw grid
-        for (int y = 0; y <=  gridSize ; y++) {
-            for (int x = 0; x <= gridSize ; x++) {
-                if(x == cursorX && y == cursorY && x == players[1].x && y == players[1].y){
-                    printf("[%d]", players[1].team->jersey.number);
-                }
-                else if (x == cursorX && y == cursorY)
-                    cout << "[ ]";
-                else if (x == passer.x && y == passer.y)
-                    cout << " P "; 
-                else if(x == players[1].x && y == players[1].y){
-                    
-                    printf(" %d ", players[1].team->jersey.number);
-                }else if(x == enplayers[0].x && y == enplayers[0].y){
-                    printf("\033[31;1;1m %d \033[0m", enplayers[0].team->jersey.number);
-                }else if(x == enplayers[1].x && y == enplayers[1].y){
-                    printf("\033[31;1;1m %d \033[0m", enplayers[1].team->jersey.number);
-                }
-                else
-                    cout << "   ";
-            }
-            cout << "\n";
+    
+    if(isOneTwo){
+        cout << passer.name << " passes the ball to for one two " << GlobaloneTwo->name << "!\n";
+        sleep(1);
+        ball.velocity = magnitude(passer.x, passer.y, GlobaloneTwo->x, GlobaloneTwo->y);
+        if(interception(enplayers, passer, *GlobaloneTwo)){
+            //pass succeed if intercept return 1
+            passer.hasball = false;
+            GlobaloneTwo->hasball = true;
+            ball.x = GlobaloneTwo->x;
+            ball.y = GlobaloneTwo->y;
+            
+            return *GlobaloneTwo;
         }
+        else {
+            passer.hasball = false;
+            
+            return whoHasBall(players, enplayers);
+        }
+        
+    }else{
+        
+        while (true) {
+            system("cls");
 
-        cout << "Use arrow keys to move, Enter to pass\n";
-
-        int key = getch();
-        if (key == 224) { // arrow keys prefix
-            key = getch();
-            switch (key) {
-                case 72: cursorY--; break; // up
-                case 80: cursorY++; break; // down
-                case 75: cursorX--; break; // left
-                case 77: cursorX++; break; // right
-            }
-        } else if (key == 13) { // Enter
-            // Check if a player is at the cursor position
-            for (auto &target : players) {
-                if (target.x == cursorX && target.y == cursorY) {
-                    cout << passer.name << " passes the ball to " << target.name << "!\n";
-                    ball.velocity = magnitude(passer.x, passer.y, target.x, target.y);
-                    if(interception(enplayers, passer, target)){
-                        //pass succeed if intercept return 1
-                        passer.hasball = false;
-                        target.hasball = true;
-                        ball.x = target.x;
-                        ball.y = target.y;
-                        cout << "A";
-                        return;
+            // Draw grid
+            for (int y = 0; y <=  gridSize/1.5 ; y++) {
+                for (int x = 0; x <= gridSize ; x++) {
+                    if(x == cursorX && y == cursorY && x == players[1].x && y == players[1].y){
+                        printf("[%d]", players[1].team->jersey.number);
                     }
-                    else {
-                        passer.hasball = false;
+                    else if (x == cursorX && y == cursorY)
+                        cout << "[ ]";
+                    else if (x == passer.x && y == passer.y)
+                        cout << " P "; 
+                    else if(x == players[1].x && y == players[1].y){
                         
-                        return;
+                        printf(" %d ", players[1].team->jersey.number);
+                    }else if(x == enplayers[0].x && y == enplayers[0].y){
+                        printf("\033[31;1;1m %d \033[0m", enplayers[0].team->jersey.number);
+                    }else if(x == enplayers[1].x && y == enplayers[1].y){
+                        printf("\033[31;1;1m %d \033[0m", enplayers[1].team->jersey.number);
                     }
-                    
+                    else
+                        cout << "   ";
                 }
+                cout << "\n";
             }
-            cout << "No player at selected position!\n";
-            sleep(1);
+
+            cout << "Use arrow keys to move, Enter to pass\n";
+
+            int key = getch();
+            if (key == 224) { // arrow keys prefix
+                key = getch();
+                switch (key) {
+                    case 72: cursorY--; break; // up
+                    case 80: cursorY++; break; // down
+                    case 75: cursorX--; break; // left
+                    case 77: cursorX++; break; // right
+                }
+            } else if (key == 13) { // Enter
+                // Check if a player is at the cursor position
+                for (auto &target : players) {
+                    if (target.x == cursorX && target.y == cursorY) {
+                        cout << passer.name << " passes the ball to " << target.name << " in order to pass" << "!\n";
+                        sleep(1);
+                        ball.velocity = magnitude(passer.x, passer.y, target.x, target.y);
+                        if(interception(enplayers, passer, target)){
+                            //pass succeed if intercept return 1
+                            passer.hasball = false;
+                            target.hasball = true;
+                            ball.x = target.x;
+                            ball.y = target.y;
+                            
+                            return target;
+                        }
+                        else {
+                            passer.hasball = false;
+                            
+                            return whoHasBall(players, enplayers);
+                        }
+                        
+                    }
+                }
+                cout << "No player at selected position!\n";
+                sleep(1);
+            }
+
+            // Clamp cursor within field
+            cursorX = max(0, min(cursorX, 20 - 1));
+            cursorY = max(0, min(cursorY, 10- 1));
         }
-
-        // Clamp cursor within field
-        cursorX = max(0, min(cursorX, 20 - 1));
-        cursorY = max(0, min(cursorY, 10- 1));
     }
+    
 }
 
 
-void Player::pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers){
-    drawGrid(us1, usplayers, enplayers);
-    return;
+Player Player::pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo){
+    Player ballOn = drawGrid(us1, usplayers, enplayers, isOneTwo);
+    return ballOn;
 }
 
+int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers){
+    Player ballOn = pass(us1, usplayers, enplayers, false);
+    if(ballOn.team->teamname == "Japan"){
+        us1.x +=3;// take 3 steps 
+        GlobaloneTwo = &us1;
+        ballOn = pass(ballOn, usplayers, enplayers, true);
+        if(ballOn.team->teamname == "Japan"){
+            cout << "One Two succeeded by " << ballOn.name << endl;
+            cout << GlobaloneTwo->name << " " << GlobaloneTwo->hasball<< endl;
+            return 1; 
+        }else return 0;
+    }else return 0;
+
+}

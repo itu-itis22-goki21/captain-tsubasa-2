@@ -2,20 +2,7 @@
 
 Ball ball;
 
-void whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers){
-    cout << "whohasball entered"<< endl;
-    for(int i = 0; i < usplayers.size(); i++){
-        if(usplayers[i].hasball){
-            cout << usplayers[i].name <<" has ball at " << usplayers[i].x << " " <<  usplayers[i].y  << endl;
-        }
-    }
-    for(int i = 0; i < enplayers.size(); i++){
-        if(enplayers[i].hasball){
-            cout << enplayers[i].name <<" has ball at " << enplayers[i].x << " " <<  enplayers[i].y  << endl;
-        }
-    }
-    return;
-}
+
 
 
 int main(){
@@ -31,6 +18,6 @@ int main(){
     
     usteam[0].hasball = 1;
     addPlayer(usteam, enteam);
-    usteam[0].pass(usteam[0], usteam, enteam);
+    usteam[0].oneTwo(usteam[0], usteam, enteam);
     whoHasBall(usteam, enteam);
 }

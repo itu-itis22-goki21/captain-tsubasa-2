@@ -8,7 +8,8 @@
 #include "Team.h"
 #include "ball.h"
 #include <conio.h> // for getch() on Windows
-#include<unistd.h>
+#include <unistd.h>
+#include <unistd.h>
 
 #define DRIB 40
 #define PASS 20
@@ -28,9 +29,9 @@ public:
     int x, y;
     string name;
     int dribPower = 0;
-    int shoot = 0;
-    int passPower = 0;
-    int oneTwo = 0;
+    int shootPower = 0;
+    int passPower = 10;
+    int oneTwoPower = 0;
 
     // Defensive values
     int tackle = 0;
@@ -50,11 +51,13 @@ public:
     Player();
     Player(string name, Team *team, int x, int y);
     ~Player();
-    void pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
+    Player pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo);
     void dribble(Player &us, Player &enemy);
+    void shoot(Player &us, vector<Player> &enplayers, Player &goalie);
+    int oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
 };
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam);
-
+Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers);
 
 #endif 
