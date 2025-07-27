@@ -10,8 +10,8 @@
                 "-std=c++17",
                 "-I${workspaceFolder}/include",
                 "-L${workspaceFolder}/lib",
-                "${workspaceFolder}/src/pitch.cpp",
-                "${workspaceFolder}/src/glad.c",
+                "${workspaceFolder}/src/game.cpp",
+                "${workspaceFolder}/src/.c",
                 "-lglfw3dll",
                 "-o",
                 "${workspaceFolder}/cutable.exe"

@@ -6,7 +6,7 @@
 #include <cstdlib> // for rand()
 #include <ctime>   // for time()
 #include "Team.h"
-
+#include "ball.h"
 #include <conio.h> // for getch() on Windows
 #include<unistd.h>
 
@@ -29,7 +29,7 @@ public:
     string name;
     int dribPower = 0;
     int shoot = 0;
-    int passPower = 10;
+    int passPower = 0;
     int oneTwo = 0;
 
     // Defensive values
@@ -47,21 +47,14 @@ public:
     
     Team *team;
     
+    Player();
     Player(string name, Team *team, int x, int y);
     ~Player();
     void pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
     void dribble(Player &us, Player &enemy);
 };
 
+void addPlayer(vector<Player> &usteam, vector<Player> &enteam);
 
 
-class Ball{
-public:
-    int x, y;
-    int velocity;
-};
-
-
-
-extern Ball ball;
 #endif 
