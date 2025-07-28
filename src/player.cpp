@@ -11,27 +11,28 @@ Player ***pitch = new Player**[10];
 Player *GlobaloneTwo = new Player;
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam){
-    for (int i = 0; i < 10; ++i) {
-        pitch[i] = new Player*[10];
-        for (int j = 0; j < 10; ++j) {
+    for (int i = 0; i < 11; ++i) {
+        pitch[i] = new Player*[11];
+        for (int j = 0; j < 11; ++j) {
             pitch[i][j] = nullptr; // Initially empty
         }
     }
+    
     // Place user team players
-    for (int i = 0; i < usteam.size(); i++) {
-        int x = usteam[i].x;
-        int y = usteam[i].y;
-        pitch[x][y] = &usteam[i];
-        //std::cout << pitch[x][y]->name << std::endl;
+    for (Player &p : usteam) {
+    if (p.x >= 0 && p.x < 15 && p.y >= 0 && p.y < 10) {
+        pitch[p.x][p.y] = &p;
     }
+}
 
     // Place enemy team players
-    for (int i = 0; i < enteam.size(); i++) {
-        int x = enteam[i].x;
-        int y = enteam[i].y;
-        pitch[x][y] = &enteam[i];
-        //std::cout << pitch[x][y]->name << std::endl;
+    for (Player &p : enteam) {
+    if (p.x >= 0 && p.x < 15 && p.y >= 0 && p.y < 10) {
+        pitch[p.x][p.y] = &p;
     }
+}
+    cout << "" ;
+    return;
 }
 
 int magnitude(int x1, int y1, int x2, int y2){
@@ -193,11 +194,12 @@ bool interception(vector<Player> &enplayers, Player &passer, Player &target){
     interPlayers = lineDrawing(enplayers, passer, target);//intercepting players in this vector
     for(int i = 0; i< interPlayers.size();i++){
         if(passcut(interPlayers[i], passer)){
-            //pass cutted
+            //pass or shoot cutted
             return 0;
         }else{
             continue;
         }
+    //pass or shoot completed    
     }return 1;
 
 }
@@ -321,4 +323,26 @@ int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enpla
         }else return 0;
     }else return 0;
 
+}
+
+int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
+    cout << us.name << " has shot into the " << goalie.team->teamname<< " goal" << endl;
+    if(interception(enplayers, us, goalie)){
+        
+        cout << us.name << "'s shoot going to goal post" << endl;
+        sleep(1);
+        if(goalie.goalieSpec->catchPower > us.shootPower){
+            
+            cout << goalie.name << " had catched the ball" << endl;
+            us.hasball = false;
+            goalie.hasball = true;
+            return 1;
+        }else {
+            //goal
+            cout << us.name<< " 's shot was a goal" << endl;
+            return 0;
+        }
+    }else return 0; //shoot cutted
+
+    return -1;
 }

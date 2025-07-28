@@ -7,6 +7,7 @@
 #include <ctime>   // for time()
 #include "Team.h"
 #include "ball.h"
+#include "goalie.h"
 #include <conio.h> // for getch() on Windows
 #include <unistd.h>
 #include <unistd.h>
@@ -45,7 +46,8 @@ public:
     bool hasball = false;
     int stamina = 100; // Starting stamina
 
-    
+    bool isGoalie;
+    Goalie *goalieSpec;
     Team *team;
     
     Player();
@@ -53,9 +55,10 @@ public:
     ~Player();
     Player pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo);
     void dribble(Player &us, Player &enemy);
-    void shoot(Player &us, vector<Player> &enplayers, Player &goalie);
+    int shoot(Player &us, vector<Player> &enplayers, Player &goalie);
     int oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
 };
+
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam);
 Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers);
