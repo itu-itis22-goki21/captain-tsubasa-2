@@ -16,6 +16,6 @@ int main(){
     usteam[0].hasball = 1;
     addPlayer(usteam, enteam);
     
-    usteam[0].shoot(usteam[0], enteam, enteam[2]);
-    whoHasBall(usteam, enteam);
+    usteam[0].dribble(usteam[0], enteam[0], usteam, enteam);
+    
 }

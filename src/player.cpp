@@ -40,9 +40,44 @@ int magnitude(int x1, int y1, int x2, int y2){
     y2 -=y1;
     return (x2+y2)/2;
 }
+string defSelect(Player &selector) {
+    int direction = -1;
+
+    cout << "Press arrow key to choose action, then press Enter:\n";
+    while (true) {
+
+        int key = getch();
+        if (key == 224) { // arrow key prefix
+            key = getch();
+            system("cls");
+            direction = key; // store direction
+            switch (key) {
+                case 72: cout << "Selected: up (Tackle)\n"; break;
+                case 80: cout << "Selected: down (Nothing)\n"; break;
+                case 75: cout << "Selected: left (Passcut)\n"; break;
+                case 77: cout << "Selected: right (Block)\n"; break;
+                default: cout << "Unknown direction\n"; break;
+                
+            }
+        } else if (key == 13 && direction != -1) { // Enter pressed
+            switch (direction) {
+                case 72: return "tackle";
+                case 80: return "nothing";
+                case 75: return "passcut";
+                case 77: return "block";
+                default: return "nothing";
+            }
+        }
+    }
+}
+
+string stop(Player enemy, Player us){
+    cout << enemy.name << " has stopped " << us.name << endl;
+    return defSelect(enemy);
+
+}
 
 Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers){
-    cout << "whohasball entered"<< endl;
     for(int i = 0; i < usplayers.size(); i++){
         if(usplayers[i].hasball){
             cout << usplayers[i].name <<" has ball at " << usplayers[i].x << " " <<  usplayers[i].y  << endl;
@@ -98,7 +133,25 @@ void pushaway(Player &enemy){
     return;
 }
 
-void Player::dribble(Player &us, Player &enemy){
+Player Player::dribble(Player &us, Player &enemy, vector<Player> &usplayers, vector<Player> &enplayers){
+    string  action = stop(enemy, us);
+    
+    // Important case:
+    //In here if we drib enemy does tackle or passcut or block or nothing
+    //So we switch the arguments in the defensive functions
+    //switch case would be useful
+    if(action == "tackle"){
+        cout << enemy.name << " tackling" <<endl;
+        if(tackle(us, enemy)){
+            return whoHasBall(usplayers, enplayers);
+        }
+    }else if(action == "passcut"){
+        return whoHasBall(usplayers, enplayers);
+    }
+    return us;
+    
+}
+bool Player::tackle(Player &us, Player &enemy){
     srand(time(NULL));
     int dice1, dice2 = 0;
     dice1 = rand()%6;
@@ -107,11 +160,11 @@ void Player::dribble(Player &us, Player &enemy){
     enemy.stamina - TACKLE;
 
     int uslvl = us.dribPower+dice1;
-    int enemylvl =enemy.dribPower+dice2;
+    int enemylvl =enemy.tacklePower+dice2;
     int diff = uslvl-enemylvl;
     if(diff > 0){
         cout << us.name << " has dribbled"<<endl;
-        return;
+        return true;//dribble succeded
     }
     else {
         if(diff <-3){
@@ -120,12 +173,12 @@ void Player::dribble(Player &us, Player &enemy){
             }
             cout << enemy.name << " has tackled" << endl;
             enemy.hasball = 1;
-            return;
+            return false;
         }
         else{
             cout << enemy.name << " has pushed away" << endl;
             pushaway(enemy);
-            return;
+            return false;
         }
     }
 }
@@ -162,19 +215,21 @@ vector<Player> lineDrawing(vector<Player> &enplayers, Player &passer, Player &ta
     
 }
 
-bool passcut(Player &interceptor, Player &passer){
+
+
+bool Player::passcut(Player &interceptor, Player &passer){
     cout << interceptor.name << " has jumped" << endl;
     sleep(1);
     
-    if(passer.passPower > interceptor.passcut){
+    if(passer.passPower > interceptor.passcutPower){
         cout << interceptor.name << " could not cut" << endl;
         sleep(1);
         return 0;
         
-    }else if(passer.passPower == interceptor.passcut){
+    }else if(passer.passPower == interceptor.passcutPower){
         ball.x = interceptor.x;
         ball.y = interceptor.y;
-        pushaway(interceptor);
+        pushaway(*this);
         
         return 1;
     }
@@ -188,23 +243,61 @@ bool passcut(Player &interceptor, Player &passer){
     }
     
 }
-
-bool interception(vector<Player> &enplayers, Player &passer, Player &target){
-    vector<Player> interPlayers;
-    interPlayers = lineDrawing(enplayers, passer, target);//intercepting players in this vector
-    for(int i = 0; i< interPlayers.size();i++){
-        if(passcut(interPlayers[i], passer)){
-            //pass or shoot cutted
-            return 0;
-        }else{
-            continue;
-        }
-    //pass or shoot completed    
-    }return 1;
-
+bool Player::block(Player &blocker, Player &shooter){
+    cout << blocker.name << " has jumped" << endl;
+    sleep(1);
+    
+    if(shooter.shootPower > blocker.blockPower){
+        cout << blocker.name << " could not blocked" << endl;
+        sleep(1);
+        return 0;
+        
+    }else if(shooter.shootPower == blocker.blockPower){
+        ball.x = blocker.x;
+        ball.y = blocker.y;
+        cout << blocker.name << " has blocked" << endl;
+        pushaway(*this);
+        
+        return 1;
+    }
+    else{
+        cout<< blocker.name << " has taken out the ball";
+        sleep(1);
+        ball.x = blocker.x;
+        ball.y = blocker.y;
+        blocker.hasball = 1;
+        return 1;
+    }
 }
 
-Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers, bool isOneTwo) {
+bool interception(vector<Player> &enplayers, Player &passer, Player &target, bool isPass){
+    vector<Player> interPlayers;
+    interPlayers = lineDrawing(enplayers, passer, target);//intercepting players in this vector
+    if(isPass){
+        for(int i = 0; i< interPlayers.size();i++){
+            if(interPlayers[i].passcut(interPlayers[i], passer)){
+                //pass or shoot cutted
+                return 0;
+            }else{
+                continue;
+            }
+        //pass or shoot completed    
+        }return 1;
+    }else{
+        for(int i = 0; i< interPlayers.size();i++){
+            if(interPlayers[i].block(interPlayers[i], passer)){
+                //pass or shoot cutted
+                return 0;
+            }else{
+                continue;
+            }
+        //pass or shoot completed    
+        }return 1;
+    }
+    
+}
+
+Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplayers, bool isOneTwo, bool isPass) {
     const int gridSize = 15;
     int cursorX = passer.x;
     int cursorY = passer.y;
@@ -213,7 +306,7 @@ Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplaye
         cout << passer.name << " passes the ball to for one two " << GlobaloneTwo->name << "!\n";
         sleep(1);
         ball.velocity = magnitude(passer.x, passer.y, GlobaloneTwo->x, GlobaloneTwo->y);
-        if(interception(enplayers, passer, *GlobaloneTwo)){
+        if(interception(enplayers, passer, *GlobaloneTwo, isPass)){
             //pass succeed if intercept return 1
             passer.hasball = false;
             GlobaloneTwo->hasball = true;
@@ -275,7 +368,7 @@ Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplaye
                         cout << passer.name << " passes the ball to " << target.name << " in order to pass" << "!\n";
                         sleep(1);
                         ball.velocity = magnitude(passer.x, passer.y, target.x, target.y);
-                        if(interception(enplayers, passer, target)){
+                        if(interception(enplayers, passer, target, isPass)){
                             //pass succeed if intercept return 1
                             passer.hasball = false;
                             target.hasball = true;
@@ -306,11 +399,13 @@ Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplaye
 
 
 Player Player::pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo){
-    Player ballOn = drawGrid(us1, usplayers, enplayers, isOneTwo);
+    bool isPass = true;
+    Player ballOn = drawGrid(us1, usplayers, enplayers, isOneTwo, isPass);
     return ballOn;
 }
 
 int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers){
+    
     Player ballOn = pass(us1, usplayers, enplayers, false);
     if(ballOn.team->teamname == "Japan"){
         us1.x +=3;// take 3 steps 
@@ -327,11 +422,14 @@ int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enpla
 
 int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
     cout << us.name << " has shot into the " << goalie.team->teamname<< " goal" << endl;
-    if(interception(enplayers, us, goalie)){
+    sleep(1);
+    bool isPass = false;
+    if(interception(enplayers, us, goalie, isPass)){
         
         cout << us.name << "'s shoot going to goal post" << endl;
         sleep(1);
-        if(goalie.goalieSpec->catchPower > us.shootPower){
+        if(goalie.goalieSpec.catchPower > us.shootPower){
+            cout << goalie.goalieSpec.catchPower<< endl;
             
             cout << goalie.name << " had catched the ball" << endl;
             us.hasball = false;
@@ -339,7 +437,9 @@ int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
             return 1;
         }else {
             //goal
-            cout << us.name<< " 's shot was a goal" << endl;
+            cout << us.name<< " 's shot was a goal!" << endl;
+            us.hasball = false;
+            enplayers[0].hasball = true;
             return 0;
         }
     }else return 0; //shoot cutted

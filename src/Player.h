@@ -29,15 +29,15 @@ class Player
 public:
     int x, y;
     string name;
-    int dribPower = 0;
-    int shootPower = 0;
+    int dribPower = 10;
+    int shootPower = 10;
     int passPower = 10;
     int oneTwoPower = 0;
 
     // Defensive values
-    int tackle = 0;
-    int passcut = 0;
-    int block = 0;
+    int tacklePower = 0;
+    int passcutPower = 0;
+    int blockPower = 0;
     int skip = 0;
 
     // (consider setters/getters)
@@ -47,20 +47,27 @@ public:
     int stamina = 100; // Starting stamina
 
     bool isGoalie;
-    Goalie *goalieSpec;
+    Goalie goalieSpec;
     Team *team;
     
     Player();
     Player(string name, Team *team, int x, int y);
     ~Player();
+    //offensive plays
     Player pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo);
-    void dribble(Player &us, Player &enemy);
+    Player dribble(Player &us, Player &enemy, vector<Player> &usplayers, vector<Player> &enplayers);
     int shoot(Player &us, vector<Player> &enplayers, Player &goalie);
     int oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
+
+    //defensive plays
+    bool passcut(Player &interceptor, Player &passer);
+    bool block(Player &blocker, Player &shooter);
+    bool tackle(Player &us, Player &enemy);
 };
 
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam);
 Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers);
-
+string stop(Player enemy, Player us);
+string defSelect(Player &selector);
 #endif 
