@@ -401,6 +401,7 @@ Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplaye
 Player Player::pass(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers, bool isOneTwo){
     bool isPass = true;
     Player ballOn = drawGrid(us1, usplayers, enplayers, isOneTwo, isPass);
+    cout << ballOn.name << " has the ball" << endl;
     return ballOn;
 }
 

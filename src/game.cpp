@@ -15,7 +15,7 @@ int main(){
     vector <Player> enteam= {{"Santana", &Brazil, 3, 5},{"Coimbra", &Brazil, 6, 5}, {"Gertise", &Brazil, 15, 5}};
     usteam[0].hasball = 1;
     addPlayer(usteam, enteam);
-    
-    usteam[0].dribble(usteam[0], enteam[0], usteam, enteam);
+    usteam[0].pass(usteam[0], usteam, enteam, false);
+//    usteam[0].dribble(usteam[0], enteam[0], usteam, enteam);
     
 }
