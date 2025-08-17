@@ -58,7 +58,7 @@ public:
     Player dribble(Player &us, Player &enemy, vector<Player> &usplayers, vector<Player> &enplayers);
     int shoot(Player &us, vector<Player> &enplayers, Player &goalie);
     int oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enplayers);
-
+    void run(vector<Player> &usplayers, vector<Player> &enplayers);
     //defensive plays
     bool passcut(Player &interceptor, Player &passer);
     bool block(Player &blocker, Player &shooter);
@@ -68,6 +68,6 @@ public:
 
 void addPlayer(vector<Player> &usteam, vector<Player> &enteam);
 Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers);
-string stop(Player enemy, Player us);
-string defSelect(Player &selector);
+string stop(Player enemy, Player us, vector<Player> &enplayers);
+string Select(Player &selector);
 #endif 

@@ -40,16 +40,42 @@ int magnitude(int x1, int y1, int x2, int y2){
     y2 -=y1;
     return (x2+y2)/2;
 }
-string defSelect(Player &selector) {
+string Select(Player &selector) {
     int direction = -1;
-
+    if(selector.hasball){
+        while (true) {
+        
+        int key = getch();
+        if (key == 224) { // arrow key prefix
+            key = getch();
+            cout << "\033[2J\033[H";
+            direction = key; // store direction
+            switch (key) {
+                case 72: cout << "Selected: up (drib)\n"; break;
+                case 80: cout << "Selected: down (oneTwo)\n"; break;
+                case 75: cout << "Selected: left (pass)\n"; break;
+                case 77: cout << "Selected: right (shoot)\n"; break;
+                default: cout << "Unknown direction\n"; break;
+                
+            }
+        } else if (key == 13 && direction != -1) { // Enter pressed
+            switch (direction) {
+                case 72: return "drib";
+                case 80: return "oneTwo";
+                case 75: return "pass";
+                case 77: return "shoot";
+                default: return "nothing";
+            }
+        }
+    }
+    }
     cout << "Press arrow key to choose action, then press Enter:\n";
     while (true) {
 
         int key = getch();
         if (key == 224) { // arrow key prefix
             key = getch();
-            system("cls");
+            cout << "\033[2J\033[H";
             direction = key; // store direction
             switch (key) {
                 case 72: cout << "Selected: up (Tackle)\n"; break;
@@ -71,10 +97,12 @@ string defSelect(Player &selector) {
     }
 }
 
-string stop(Player enemy, Player us){
+string stop(Player enemy, Player us, vector<Player> &enplayers){
     cout << enemy.name << " has stopped " << us.name << endl;
-    return defSelect(enemy);
+    string usSel = Select(us);//here returned
+    string defSel= Select(enemy);
 
+    return defSel;
 }
 
 Player whoHasBall(vector<Player> &usplayers, vector<Player> &enplayers){
@@ -134,7 +162,7 @@ void pushaway(Player &enemy){
 }
 
 Player Player::dribble(Player &us, Player &enemy, vector<Player> &usplayers, vector<Player> &enplayers){
-    string  action = stop(enemy, us);
+    string action = stop(enemy, us, enplayers);
     
     // Important case:
     //In here if we drib enemy does tackle or passcut or block or nothing
@@ -324,31 +352,68 @@ Player drawGrid(Player &passer, vector<Player> &players, vector<Player> &enplaye
     }else{
         
         while (true) {
-            system("cls");
+            cout << "\033[2J\033[H";//ansii escape code
 
             // Draw grid
-            for (int y = 0; y <=  gridSize/1.5 ; y++) {
-                for (int x = 0; x <= gridSize ; x++) {
-                    if(x == cursorX && y == cursorY && x == players[1].x && y == players[1].y){
-                        printf("[%d]", players[1].team->jersey.number);
+            for (int y = 0; y <= gridSize / 1.5; y++) {
+                for (int x = 0; x <= gridSize; x++) {
+                    bool printed = false;
+
+                    //teammates
+                    for (size_t i = 0; i < players.size(); i++) {
+                        if (x == players[i].x && y == players[i].y) {
+                            if (x == cursorX && y == cursorY) {
+                                // cursor overlaps teammate
+                                cout << "[" << players[i].team->jersey.number << "]";
+                            } else {
+                                cout << " " << players[i].team->jersey.number << " ";
+                            }
+                            printed = true;
+                            break;
+                        }
                     }
-                    else if (x == cursorX && y == cursorY)
+
+                    //enemies
+                    if (!printed) {
+                        for (size_t i = 0; i < enplayers.size(); i++) {
+                            if (x == enplayers[i].x && y == enplayers[i].y) {
+                                if (x == cursorX && y == cursorY) {
+                                    // cursor overlaps enemy → bracket + red jersey number
+                                    printf("[\033[31;1;1m%d\033[0m]", enplayers[i].team->jersey.number);
+                                } else {
+                                    printf("\033[31;1;1m %d \033[0m", enplayers[i].team->jersey.number);
+                                }
+                                printed = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    //passer special
+                    if (!printed && x == passer.x && y == passer.y) {
+                        if (x == cursorX && y == cursorY) {
+                            cout << "[P]";
+                        } else {
+                            cout << " P ";
+                        }
+                        printed = true;
+                    }
+
+                    //cursor only
+                    if (!printed && x == cursorX && y == cursorY) {
                         cout << "[ ]";
-                    else if (x == passer.x && y == passer.y)
-                        cout << " P "; 
-                    else if(x == players[1].x && y == players[1].y){
-                        
-                        printf(" %d ", players[1].team->jersey.number);
-                    }else if(x == enplayers[0].x && y == enplayers[0].y){
-                        printf("\033[31;1;1m %d \033[0m", enplayers[0].team->jersey.number);
-                    }else if(x == enplayers[1].x && y == enplayers[1].y){
-                        printf("\033[31;1;1m %d \033[0m", enplayers[1].team->jersey.number);
+                        printed = true;
                     }
-                    else
+
+                    // 
+                    if (!printed) {
                         cout << "   ";
+                    }
                 }
                 cout << "\n";
             }
+
+
 
             cout << "Use arrow keys to move, Enter to pass\n";
 
@@ -414,7 +479,8 @@ int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enpla
         ballOn = pass(ballOn, usplayers, enplayers, true);
         if(ballOn.team->teamname == "Japan"){
             cout << "One Two succeeded by " << ballOn.name << endl;
-            cout << GlobaloneTwo->name << " " << GlobaloneTwo->hasball<< endl;
+            cout << GlobaloneTwo->name << " " <<
+             GlobaloneTwo->x << " " << GlobaloneTwo->y << endl;
             return 1; 
         }else return 0;
     }else return 0;
@@ -422,6 +488,7 @@ int Player::oneTwo(Player &us1, vector<Player> &usplayers, vector<Player> &enpla
 }
 
 int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
+
     cout << us.name << " has shot into the " << goalie.team->teamname<< " goal" << endl;
     sleep(1);
     bool isPass = false;
@@ -438,6 +505,7 @@ int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
             return 1;
         }else {
             //goal
+            cout << goalie.name << " could not catch the ball" << endl;
             cout << us.name<< " 's shot was a goal!" << endl;
             us.hasball = false;
             enplayers[0].hasball = true;
@@ -446,4 +514,79 @@ int Player::shoot(Player &us, vector<Player> &enplayers, Player &goalie){
     }else return 0; //shoot cutted
 
     return -1;
+}
+
+void drawGeneralGrid(Player &us, vector<Player> &players, vector<Player> &enplayers){
+    const int gridSize = 15;
+    int cursorX = us.x;
+    int cursorY = us.y;
+    while (true) {
+        cout << "\033[2J\033[H";
+
+        // Draw grid
+        for (int y = 0; y <=  gridSize ; y++) {
+            for (int x = 0; x <= gridSize ; x++) {                
+                bool printed = false;
+
+                // current player
+                if (x == us.x && y == us.y) {
+                    cout << " B ";
+                    printed = true;
+                }
+
+                // teammates
+                for (size_t i = 0; i < players.size(); i++) {
+                    if (x == players[i].x && y == players[i].y) {
+                        if(us.name == players[i].name){
+                            continue;
+                        }
+                        cout << " " << players[i].team->jersey.number << " ";
+                        printed = true;
+                    }
+                }
+
+                // enemies
+                for (size_t i = 0; i < enplayers.size(); i++) {
+                    if (x == enplayers[i].x && y == enplayers[i].y) {
+                        if(x == us.x && y == us.y){
+                            stop(enplayers[i], us, enplayers);
+                            sleep(2);
+                        }
+                        printf("\033[31;1;1m %d \033[0m", enplayers[i].team->jersey.number);
+                        printed = true;
+                    }
+                }
+
+                if (!printed)
+                    cout << "   ";
+            }
+            cout << "\n";
+        }
+
+        cout << "Use arrow keys to move\n";
+        cout << "ball at" <<us.x << " " << us.y<< endl;
+        int key = getch();
+        if (key == 224) { // arrow keys prefix
+            key = getch();
+            switch (key) {
+                case 72: if (us.y > 0) us.y--; break;        // up
+                case 80: if (us.y < gridSize) us.y++; break; // down
+                case 75: if (us.x > 0) us.x--; break;        // left
+                case 77: if (us.x < gridSize) us.x++; break; // right
+            }
+        } else if (key == 13) { // Enter
+            
+            return;
+        }
+    }
+
+}
+
+void Player::run( vector<Player> &usplayers, vector<Player> &enplayers){
+    if(this->name != whoHasBall(usplayers, enplayers).name){
+        cout << "There is an error current player does not have the ball";
+        return;
+    }
+    drawGeneralGrid(*this, usplayers, enplayers);
+    return;
 }
