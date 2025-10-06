@@ -1,2 +1,2 @@
 undefinedhellow
-[object Object]
+[object Object]The content you want to append to README.md is the same as before. Just to confirm, should I append it again? This will result in the same sentence being added twice at the end of the README.
