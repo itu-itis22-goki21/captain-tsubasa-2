@@ -1,1 +1,1 @@
-I will update the README.md file in your repository with the provided content. Proceeding to edit and commit the changes now.
+I will update the README.md file in your repository with the provided content. Proceeding to edit and commit the changes now.Sure! Could you please provide the specific information or a web link about the "ct2 game" that you'd like me to append to your README? Alternatively, I can search for general information about the game and add that for you. Let me know your preference!
